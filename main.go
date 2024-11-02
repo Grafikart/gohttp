@@ -5,43 +5,44 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"strings"
 
 	"github.com/k0kubun/pp/v3"
 	"golang.org/x/net/http2"
 )
 
 func main() {
-	// Load the server certificate and private key
+	// On charge les certificats
 	cert, err := tls.LoadX509KeyPair("cert.pem", "key.pem")
 	if err != nil {
 		log.Fatalf("Failed to load certificate: %v", err)
 	}
 
-	// Create a TLS configuration
+	// Configuration TLS
 	config := &tls.Config{
 		Certificates:       []tls.Certificate{cert},
-		NextProtos:         []string{HTTP2},
+		NextProtos:         []string{HTTP1},
 		InsecureSkipVerify: true,
 	}
 
-	// Create a TCP listener
+	// On écoute les connexions TCP
 	listener, err := net.Listen("tcp", ":8000")
 	if err != nil {
 		log.Fatalf("Failed to create listener: %v\n", err)
 	}
 	defer listener.Close()
 
-	fmt.Println("HTTPS server listening on :8000")
+	fmt.Println("🖥️ listening on https://localhost:8000")
 
 	for {
-		// Accept incoming connections
+		// On accepte la connexion
 		conn, err := listener.Accept()
 		if err != nil {
 			log.Printf("Failed to accept connection: %v\n", err)
 			continue
 		}
 
-		// Wrap the connection with TLS
+		// Gestion du TLS
 		tlsConn := tls.Server(conn, config)
 		err = tlsConn.Handshake()
 		if err != nil {
@@ -131,8 +132,13 @@ func handleHTTP1(conn net.Conn) {
 	defer conn.Close()
 	r, err := NewHTTP1Request(conn)
 	if err != nil {
-		// Ignore error
+		// Silence les erreurs de certificat
+		if strings.Contains(err.Error(), "unknown certificate") {
+			return
+		}
+		log.Printf("Error handling request %v", err.Error())
 		return
 	}
-	responseHTTP1(r, conn)
+	respondHTTP1(r, conn)
+	fmt.Printf("x\n\n")
 }

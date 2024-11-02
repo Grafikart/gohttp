@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -13,14 +12,7 @@ import (
 	"golang.org/x/net/http2/hpack"
 )
 
-func responseHTTP1(r Request, w io.Writer) {
-	w.Write([]byte("HTTP/1.1 200 OK\n"))
-	w.Write([]byte(fmt.Sprintf("Content-Type: text/%s\n", getFileExtension(r.Path))))
-	w.Write([]byte("\n"))
-	readFileInto(r.Path, w)
-}
-
-func responseHTTP2(r Request, streamID uint32, framer *http2.Framer) {
+func responseHTTP2(r *Request, streamID uint32, framer *http2.Framer) {
 	// Headers frame
 	buff := bytes.NewBuffer([]byte{})
 	encoder := hpack.NewEncoder(buff)
