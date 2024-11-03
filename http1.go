@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"log"
 	"strconv"
 
 	"net"
@@ -13,12 +14,31 @@ import (
 	"github.com/fatih/color"
 )
 
+const HTTP1 = "http/1.1"
+
 type Request struct {
 	Path     string
 	Method   string
 	Protocol string
 	Headers  map[string]string
 	Body     string
+}
+
+// Les requêtes HTTP1 ne contiennent qu'une requête par connection
+// La requête est présentée sous forme de texte contenant l'ensemble des informations
+func handleHTTP1(conn net.Conn) {
+	defer conn.Close()
+	r, err := NewHTTP1Request(conn)
+	if err != nil {
+		// Silence les erreurs de certificat
+		if strings.Contains(err.Error(), "unknown certificate") {
+			return
+		}
+		log.Printf("Error handling request %v", err.Error())
+		return
+	}
+	respondHTTP1(r, conn)
+	fmt.Printf("x\n\n")
 }
 
 /**

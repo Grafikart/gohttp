@@ -1,10 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"log"
-	"strings"
 
 	"github.com/k0kubun/pp/v3"
 )
@@ -12,21 +10,6 @@ import (
 const frameTypeSetting = 0x04
 
 // https://httpwg.org/specs/rfc7540.html#ConnectionHeader
-
-func readBytes(r io.Reader, n int) ([]byte, error) {
-	buffer := make([]byte, n)
-	b, err := io.ReadFull(r, buffer)
-
-	if err == io.ErrUnexpectedEOF {
-		return buffer[:b], fmt.Errorf("Unexpected end of buffer")
-	}
-
-	if err != nil && !strings.Contains(err.Error(), "unknown certificate") {
-		return buffer, err
-	}
-
-	return buffer, nil
-}
 
 func readByte(r io.Reader) (byte, error) {
 	bytes, err := readBytes(r, 1)
