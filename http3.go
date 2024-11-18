@@ -12,7 +12,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/k0kubun/pp/v3"
 	"github.com/quic-go/qpack"
 	"github.com/quic-go/quic-go"
 	"github.com/quic-go/quic-go/quicvarint"
@@ -58,16 +57,16 @@ const (
 // Crée un serveur HTTP2 qui informe du support de l'HTTP3
 func broadcastHTTP3(config *tls.Config) {
 	h1and2 := http.Server{
-		Addr:      "localhost:8000",
+		Addr:      "localhost:443",
 		TLSConfig: config,
 		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			pp.Println("Handle HTTP2")
-			w.Header().Set("alt-svc", "h3=\":8000\"; ma=86400, quic=\":8000\"; ma=86400")
+			w.Header().Set("alt-svc", "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000")
+			w.Write([]byte("This is an HTTP2 response with alt-svc header"))
 			return
 		})}
 	err := h1and2.ListenAndServeTLS("cert.pem", "key.pem")
 	if err != nil {
-		log.Printf("Error listen and serving h1&2 %v", err)
+		log.Printf("Impossible de lancer le serveur http2 %v", err)
 		return
 	}
 }

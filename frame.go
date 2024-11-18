@@ -1,10 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"log"
-
-	"github.com/k0kubun/pp/v3"
 )
 
 const frameTypeSetting = 0x04
@@ -49,7 +48,7 @@ func NewFrame(r io.Reader) interface{} {
 		log.Println("Cannot read streamidentifier")
 	}
 
-	pp.Printf("> Frame type: %v (%v)\n", frameType, length)
+	fmt.Printf("> Frame type: %v (%v)\n", frameType, length)
 	if frameType == 0x04 {
 		return NewSettingFrame(r, length)
 	}

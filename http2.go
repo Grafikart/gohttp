@@ -10,7 +10,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/k0kubun/pp/v3"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/hpack"
 )
@@ -207,7 +206,7 @@ func handleHTTP22(conn net.Conn) {
 	if err != nil {
 		log.Printf("Cannot read preface %v\n", err)
 	}
-	pp.Printf("\n\nx-- Preface -->")
+	fmt.Printf("\n\nx-- Preface -->")
 
 	framer := http2.NewFramer(conn, conn)
 
@@ -235,12 +234,12 @@ func handleHTTP22(conn net.Conn) {
 			}
 			UNUSED(f)
 		case *http2.WindowUpdateFrame:
-			pp.Printf("-- Window Update -->")
+			fmt.Printf("-- Window Update -->")
 			UNUSED(f)
 		case *http2.HeadersFrame:
 			streamID := f.StreamID
 			r, _ := NewHTTP2Request(f)
-			pp.Printf("-- HeadersFrame %v %v %v -->", streamID, r.Path, f.Flags.Has(http2.FlagHeadersEndStream))
+			fmt.Printf("-- HeadersFrame %v %v %v -->", streamID, r.Path, f.Flags.Has(http2.FlagHeadersEndStream))
 			// On répond
 			if r.Path == "" {
 				// Comprendre pourquoi on a des en tête vide :(
